@@ -488,7 +488,7 @@ public:
 			ifdown = false;
 			ifhover = false;
 
-			m_lift.Set(.37);
+			m_lift.Set(-.37);
 		}
 
 		//down
