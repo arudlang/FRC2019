@@ -461,8 +461,8 @@ public:
 		bool ifhover = false;
 		bool ifup = false;
 		bool ifdown = false;
-		//within target
-		if( (CurrentLift < target+5) && (CurrentLift > target-5) )
+		//within target AND not trying to go to the bottom
+		if( (CurrentLift < target+5) && (CurrentLift > target-5) && (target != 0))
 			{
 				ifup = false;
 				ifdown = false;
@@ -470,8 +470,18 @@ public:
 
 				m_lift.Set(hover);
 			}
+		// Bottom (special case)
+		else if (target == 0 && (!(m_bottomLimit->Get()) // We want to go to the bottom but are not currently there
+		{
+
+			ifup = false;
+			ifdown = true;
+			ifhover = false;
+
+			m_lift.Set(.37);
+		}
 		//up
-		else if (CurrentLift < target && m_topLimit->Get() )
+		else if (CurrentLift < target && m_topLimit->Get())
 		{
 		
 			ifup = true;
