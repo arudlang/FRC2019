@@ -1,0 +1,52 @@
+
+// Untested Pseudocode
+
+// A pattern for making a function run only once per button press, regardless of how long the button is held down:
+
+class Robot : public frc::TimedRobot 
+{
+
+	// Class variables defined here
+	[... bunch of other stuff ...]
+	
+	int someButtonID = <whatever the joystick button number is>;
+	
+	int (or bool can be used when only two states) someFeature_Mode = 0;
+	bool someButton_isPressed = false; // A variable whose state survives outside of the main loop to be referred to
+	
+	
+	//Main Loop Function (whatever its called now)
+	function working(){
+	
+		bool someButtonPressedRightNow = m_stick.GetRawButton(someButtonID); // A variable that only lives the span of this one loop
+	
+		// If the button is currently pressed and it was not pressed before
+		if(someButtonPressedRightNow AND ! someButton_isPressed )
+		{
+			someButton_isPressed = true; // Prevents us from entering this IF statement again until the button is released
+			doSomethingOnce();
+		}
+		else if( ! someButtonPressedRightNow )
+		{
+			someButton_isPressed = false; 
+		}
+	
+	}
+	
+	function doSomethingOnce(){
+		// Stuff that only happens once per button press
+		/* ie, change grab to un-grap, or bump the lift target up/down 5 points, or switch the mode of something, etc */
+	}
+
+}
+
+
+
+
+
+
+
+
+
+
+
