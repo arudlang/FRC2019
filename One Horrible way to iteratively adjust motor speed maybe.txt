@@ -1,0 +1,121 @@
+// Untested Pseudocode
+
+// A pattern for smoothing motor actions over time (iteractive method)
+
+class Robot : public frc::TimedRobot 
+{
+
+	// Class variables defined here
+	[... bunch of other stuff ...]
+	
+	double CurrentLift = 0; // the existing current lift value that is being constantly updated
+	double target = 0; // the existing lift height variable
+	
+	double someMotor_speedSetting = 0;
+	
+	double desiredMotorRate = ???; // Need to do some testing to find acceptable values for this
+	double acceptableMotorRateVariance = ??? // Need to do some testing to find acceptable values for this
+	
+	
+	
+	//Main Loop Function (whatever its called now)
+	function working(){
+		
+		
+		Lift();
+		Lifting();
+	}
+	
+	// (Existing fucntion)
+	Lifting(){
+		//Debug values
+		bool ifHover = false;
+		bool ifUp = false;
+		bool ifDown = false;
+		bool ifBottom = false;
+
+		// Bottom (special case)
+		 if (target == 0 && (!(m_bottomLimit->Get() ) ) ) // We want to go to the bottom but are not currently there
+		{
+			ifUp = false;
+			ifDown = true;
+			ifHover = false;
+			ifBottom = true;
+
+			m_lift.Set(0);
+		}
+		//within target
+		else if( (CurrentLift < target+5) && (CurrentLift > target-5) )
+			{
+				ifUp = false;
+				ifDown = false;
+				ifHover = true;
+				ifBottom = false;
+
+				m_lift.Set(hover);
+			}
+		//up
+		else if (CurrentLift < target && m_topLimit->Get() )
+		{
+		
+			ifUp = true;
+			ifDown = false;
+			ifHover = false;
+			ifBottom = false;
+			
+			//m_lift.Set(.37); // instead of this, do the following:
+			adjustLiftRate_OnGoing(true);
+		}
+
+		//down
+		else if (CurrentLift > target && (! (m_bottomLimit->Get() )))
+		{
+			ifUp = false;
+			ifDown = true;
+			ifHover = false;
+			ifBottom = false;
+
+			//m_lift.Set(-.37); / instead of this, do the following:
+			adjustLiftRate_OnGoing(false);
+		} 
+		SmartDashboard::PutNumber("Target:", target);
+		SmartDashboard::PutBoolean("Lift Up", ifUp);
+		SmartDashboard::PutBoolean("Lift Down", ifDown);
+		SmartDashboard::PutBoolean("Lift Hover", ifHover);
+	}
+	
+	// Function that gets called from Lifting() in the if statements that decide to move (ie, not hover)
+	function adjustLiftRate_OnGoing(bool upwardsDirection){
+	
+		if ((upwardsDirection && (someMotor_speedSetting < 0) ) || (!upwardsDirection && (someMotor_speedSetting > 0) )){ // we want to go upwards but are currently going down... or vise-versa
+			someMotor_speedSetting = 0;
+			return; // The next loop iteration will be along shortly, the whole point of this is "no rush"
+		}
+	
+		double currentRate = m_encoder->GetRate();
+				
+		if ( (currentRate < (desiredMotorRate + acceptableMotorRateVariance)) && (currentRate > (desiredMotorRate - acceptableMotorRateVariance)) ){
+			return; // Motor is close enough to the desired speed, skip the rest of this.
+		}
+		
+		if (upwardsDirection && ( currentRate < desiredMotorRate ) && (someMotor_speedSetting < 1.0)){
+			someMotor_speedSetting += 0.01;
+		}
+		else if(upwardsDirection && ( currentRate > desiredMotorRate ) && (someMotor_speedSetting > 0.1 /* <- Can tweak that*/ ) ){
+			someMotor_speedSetting -= 0.01;
+		}
+		else if(!upwardsDirection && ( currentRate > desiredMotorRate ) && (someMotor_speedSetting > -0.1 /* <- Can tweak that*/ ) ){
+			someMotor_speedSetting -= 0.01;
+		}
+		else if(!upwardsDirection && ( currentRate < desiredMotorRate ) && (someMotor_speedSetting > -1.0) ){
+			someMotor_speedSetting += 0.01;
+		}
+		
+		
+		// Last but not least, update the motor speed after any adjustments we have made:
+		m_lift.Set(someMotor_speedSetting);
+	}
+
+}
+
+
