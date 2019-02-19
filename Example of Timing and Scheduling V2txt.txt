@@ -1,0 +1,59 @@
+// Untested Pseudocode
+
+// A pattern for firing a function on a rough schedule via time keeping (individual timers method)
+
+class Robot : public frc::TimedRobot 
+{
+
+	// Class variables defined here
+	<... bunch of other stuff ...>
+	
+	frc::Timer m_timer_for_one_thing; // Keep a separate timer for each event
+	
+	frc::Timer m_timer_for_other_thing; // This may not scale as well as keeping a single timer as a clock
+	
+	int desiredTimeBetweenSomeEvent = 1000; // Milliseconds, 1000 = 1 second
+	int desiredTimeBetweenSomeOtherEvent = 1000; // Milliseconds, 1000 = 1 second
+	
+	// Some setup function that only runs once on startup:
+	function startup(){
+		m_timer_for_one_thing.Start();
+		m_timer_for_other_thing.Start();
+	}
+	
+	
+	//Main Loop Function (whatever its called now)
+	function working(){
+	
+		if ( (m_timer_for_one_thing.get() / 1000) > desiredTimeBetweenSomeEvent ){
+			//Enough time has passed, it is time to fire this event:
+			
+			m_timer_for_one_thing.reset(); // reset your timer
+			
+			doSomething();
+		}
+		
+		if ( (m_timer_for_other_thing.get() / 1000) > desiredTimeBetweenSomeEvent ){
+			//Enough time has passed, it is time to fire this event:
+			
+			m_timer_for_other_thing.reset();
+			
+			doSomethingElse();
+		}
+		
+	
+	}
+	
+	function doSomething(){
+		
+		<ie, adjust motor speed by one step, or similar>
+		
+	}
+	
+	function doSomethingElse(){
+		
+		<ie, adjust lift speed by one step, or similar>
+		
+	}
+
+}
